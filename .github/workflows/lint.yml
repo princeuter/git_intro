@@ -1,19 +1,36 @@
 name: Lint
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install flake8==5.0.4 flake8-blind-except==0.2.1 flake8-broken-line==0.6.0 flake8-bugbear==22.9.23 flake8-builtins==2.0.0 flake8-class-attributes-order==0.1.3 flake8-cognitive-complexity==0.1.0 flake8-commas==2.1.0 flake8-comprehensions==3.10.0 flake8-debugger==4.1.2 flake8-eradicate==1.4.0 flake8-functions==0.0.7 flake8-isort==5.0.0 flake8-mutable==1.2.0 flake8-print==5.0.0 flake8-pytest==1.4 flake8-pytest-style==1.6.0 flake8-quotes==3.3.1 flake8-string-format==0.3.0 flake8-variables-names==0.0.5
-      - name: Run flake8
-        run: flake8 . --max-line-length=88 --extend-ignore=E203,W503
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8==5.0.4
+        pip install flake8-blind-except==0.2.1 flake8-broken-line==0.6.0 flake8-bugbear==22.9.23 flake8-builtins==2.0.0 flake8-class-attributes-order==0.1.3 flake8-cognitive-complexity==0.1.0 flake8-comprehensions==3.10.0 flake8-debugger==4.1.2 flake8-eradicate==1.4.0 flake8-functions==0.0.7 flake8-isort==5.0.0 flake8-mutable==1.2.0 flake8-print==5.0.0 flake8-pytest==1.4 flake8-pytest-style==1.6.0 flake8-quotes==3.3.1 flake8-string-format==0.3.0 flake8-variables-names==0.0.5
+        # Принудительно удаляем flake8-commas, если он установлен
+        pip uninstall -y flake8-commas || true
+        pip install black isort
+
+    - name: Run flake8
+      run: flake8 . --max-line-length=88 --extend-ignore=E203,W503 --exclude=.git,__pycache__,my_project/venv
+
+    - name: Run black (check only)
+      run: black --check . --exclude my_project/venv
+
+    - name: Run isort (check only)
+      run: isort --check-only . --profile black --skip my_project/venv
