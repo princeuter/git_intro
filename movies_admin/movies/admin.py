@@ -30,6 +30,7 @@ class FilmWorkAdmin(admin.ModelAdmin):
     list_display = ('title', 'type', 'creation_date', 'rating', 'created', 'modified')
     list_filter = ('type', 'genres')
     search_fields = ('title', 'description', 'id')
+
     def created(self, obj):
         return obj.created
     created.short_description = 'Дата создания'
